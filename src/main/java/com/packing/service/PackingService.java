@@ -8,14 +8,15 @@ import com.packing.model.Case;
 import com.packing.model.Packing;
 import com.packing.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Component
 public class PackingService {
 
     @Autowired
@@ -32,7 +33,7 @@ public class PackingService {
         List<ProductDto> products = getProductsFromOrderlines(orderlines);
         List<CaseDto> packedCases = packProducts(cases, products);
         saveIntoDB(packedCases);
-        return  packedCases;
+        return packedCases;
     }
 
     public void saveIntoDB(List<CaseDto> cases) {
@@ -60,15 +61,15 @@ public class PackingService {
 
     public List<CaseDto> packProducts(final List<CaseDto> cases, final List<ProductDto> products) {
         List<CaseDto> packedCases = new ArrayList<>();
-        for (CaseDto caseDto: cases) {
+        for (CaseDto caseDto : cases) {
             caseDto.setVolume(getVolume(caseDto));
         }
         List<CaseDto> sortedCases = sortCases(cases);
-       Iterator<ProductDto> productDtoIterator = products.listIterator();
-       while (productDtoIterator.hasNext()) {
+        Iterator<ProductDto> productDtoIterator = products.listIterator();
+        while (productDtoIterator.hasNext()) {
             ProductDto product = productDtoIterator.next();
             product.setVolume(getVolume(product));
-            for (CaseDto caseDto: sortedCases) {
+            for (CaseDto caseDto : sortedCases) {
                 if (!packedCases.isEmpty()) {
                     for (int j = 0; j < packedCases.size(); j++) {
                         if (product.getVolume() <= packedCases.get(j).getVolume()) {
@@ -79,7 +80,8 @@ public class PackingService {
                             break;
                         }
                     }
-                } if ((product.getVolume() <= caseDto.getVolume())) {
+                }
+                if ((product.getVolume() <= caseDto.getVolume())) {
                     if (products.contains(product)) {
                         packedCases.add(addProductToCase(caseDto, product));
                         productDtoIterator.remove();
@@ -105,7 +107,7 @@ public class PackingService {
         }
         packedProducts.add(product);
         caseDto.setProducts(packedProducts);
-        caseDto.setVolume(caseDto.getVolume()-product.getVolume());
+        caseDto.setVolume(caseDto.getVolume() - product.getVolume());
         return caseDto;
     }
 
